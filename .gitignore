@@ -1,0 +1,27 @@
+# IDE / editor files
+*.iml
+.idea/
+.idea_modules
+*.swp
+.vagrant
+
+# Ignore OSX stuff
+.DS_Store
+*/tags
+tags
+
+# Ignore generated stuff
+logs/
+**/target/
+.classpath
+.project
+.settings
+RUNNING_PID
+akka-diagnostics/
+output/
+*.orig
+
+# Deployment templates
+deploy/*/*.json
+conf/logback.xml
+

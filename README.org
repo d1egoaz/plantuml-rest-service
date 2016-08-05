@@ -1,0 +1,86 @@
+* PlantUml Rest Service API
+
+
+I created this tool trying to improve my local workflow as when I needed to
+render a new image I had to run =java -jar plantuml.jar= and JVM warm up is slow :(
+
+Also I use org-mode to render PlantUml directly on emacs, but calling an
+external java process it just destroys the workflow.
+
+I tried to use https://github.com/plantuml/plantuml-server but server is based on JEE and
+the protocol to call server needs some custom encoding. See [[http://plantuml.com/jquery_plantuml.js][js]] and [[https://github.com/dougn/python-plantuml/blob/master/plantuml.py][python]] remote clients.
+
+You can also use the server provided by PlantUml in http://www.plantuml.com/plantuml/png/, or
+might want to use all the available services online, but most of them are UI based and
+sometimes you don't want to paste your diagrams on public services.
+
+So, I just wrote a service that exposes an endpoint to create an image based on a
+plantuml string.
+I keep the service running on the background so there is no more JVM warming up involved.
+
+This service can be integrated with any decent tool/IDE as it's relaying on HTTP.
+
+** Tools used
+
+   I think it's a good example of newcomers to Scala/Play as it's using routing, DI, custom dispatchers.
+   And it has Unit Tests :p
+
+*** [[https://www.playframework.com/][Play Framework 2.5.4]]
+
+*** [[http://plantuml.com/][PlantUml]]
+
+
+** Example
+
+#+NAME: plantumltext
+#+BEGIN_EXAMPLE
+@startuml
+Diego -> World: hello
+@enduml
+#+END_EXAMPLE
+
+
+#+BEGIN_SRC sh  :file /tmp/plantuml.png :var text=plantumltext :exports both
+echo "${text}" > /tmp/plantumltext.txt
+curl -s -X POST --data-binary @/tmp/plantumltext.txt -H "Content-Type:text/plain" localhost:9000/plantuml/png > /tmp/plantuml.png
+#+END_SRC
+
+#+RESULTS:
+[[file:/tmp/plantuml.png]]
+
+If you're using =curl= remember to use `--data-binary` instead of `-d` to preserve line breaks
+
+To know more about PlantUML, please visit http://plantuml.com/
+
+** Creating a fat jar
+
+See https://www.playframework.com/documentation/2.5.x/Deploying#Using-the-dist-task
+
+** Using a precompiled jar
+
+   Just go to [[https://github.com/d1egoaz/plantuml-rest-service/releases][Releases]].
+   Download the latest version.
+
+   To run the application, unzip the file on the target server, and then run the script in the bin directory.
+   Executable script comes in two versions, a bash shell script, and a windows .bat script.
+
+   #+BEGIN_SRC sh
+   $ unzip plantuml-rest-service-1.0-SNAPSHOT.zip
+   $ plantuml-rest-service-1.0-SNAPSHOT/bin/plantuml-rest-service
+   #+END_SRC
+   #+BEGIN_EXAMPLE
+   [info] play.api.Play - Application started (Prod)
+   [info] p.c.s.NettyServer - Listening for HTTP on /0:0:0:0:0:0:0:0:9000
+   #+END_EXAMPLE
+
+** License
+
+This project uses PlantUML and that PlantUML is distributed under LGPL.
+
+** Roadmap/TODO:
+
+- Support additional image types.
+- json ???
+- Rewrite plantuml dependency in go.
+
+Follow me on https://twitter.com/d1egoaz
